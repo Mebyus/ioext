@@ -2,25 +2,25 @@ package ioext
 
 import "io"
 
-// StrSliceReader implements io.Reader. Zero value for StrSliceReader
+// StrDeck implements io.Reader. Zero value for StrDeck
 // will return EOF on the first call of Read.
-type StrSliceReader struct {
+type StrDeck struct {
 	ss []string // underlying slice
 	i  int64    // reading index of current string
 	j  int      // index of current string
 }
 
-// NewStrSliceReader creates an instance of Reader which reads
+// NewStrDeck creates an instance of Reader which reads
 // sequentially from underlying slice of strings.
 //
 // Takes ownership of the slice.
-func NewStrSliceReader(ss []string) *StrSliceReader {
-	return &StrSliceReader{
+func NewStrDeck(ss []string) *StrDeck {
+	return &StrDeck{
 		ss: ss,
 	}
 }
 
-func (r *StrSliceReader) Read(b []byte) (n int, err error) {
+func (r *StrDeck) Read(b []byte) (n int, err error) {
 	if r.j >= len(r.ss) {
 		return 0, io.EOF
 	}
@@ -35,6 +35,6 @@ func (r *StrSliceReader) Read(b []byte) (n int, err error) {
 
 // Extend appends additional strings to underlying slice. Can be
 // used even after reaching EOF via Read.
-func (r *StrSliceReader) Extend(str ...string) {
+func (r *StrDeck) Extend(str ...string) {
 	r.ss = append(r.ss, str...)
 }

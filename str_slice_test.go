@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestStrSliceReader_Copy(t *testing.T) {
+func TestStrDeck_Copy(t *testing.T) {
 	tests := []struct {
 		name     string
 		initial  []string
@@ -55,7 +55,7 @@ func TestStrSliceReader_Copy(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := NewStrSliceReader(tt.initial)
+			r := NewStrDeck(tt.initial)
 			buf := &bytes.Buffer{}
 			wantN := int64(0)
 			for _, str := range tt.initial {
