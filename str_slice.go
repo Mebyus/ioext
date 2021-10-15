@@ -2,16 +2,17 @@ package ioext
 
 import "io"
 
-// StrDeck implements io.Reader. Zero value for StrDeck
+// StrDeck implements io.ReadWriter. Zero value for StrDeck
 // will return EOF on the first call of Read.
 type StrDeck struct {
 	ss []string // underlying slice
-	i  int64    // reading index of current string
+	i  int      // reading index of current string
 	j  int      // index of current string
 }
 
-// NewStrDeck creates an instance of Reader which reads
-// sequentially from underlying slice of strings.
+// NewStrDeck creates an instance of StrDeck which reads bytes
+// sequentially from underlying slice of strings or writes bytes by
+// appending to this slice.
 //
 // Takes ownership of the slice.
 func NewStrDeck(ss []string) *StrDeck {
@@ -25,11 +26,24 @@ func (r *StrDeck) Read(b []byte) (n int, err error) {
 		return 0, io.EOF
 	}
 	n = copy(b, r.ss[r.j][r.i:])
-	r.i += int64(n)
-	if r.i >= int64(len(r.ss[r.j])) {
-		r.j++
+	r.i += n
+	if r.i >= len(r.ss[r.j]) {
+		for r.j++; r.j < len(r.ss) && len(r.ss[r.j]) == 0; r.j++ {
+			// skip empty strings to avoid calls
+			// that will read zero bytes
+		}
 		r.i = 0
 	}
+	return
+}
+
+func (r *StrDeck) Write(b []byte) (n int, err error) {
+	if len(b) == 0 {
+		return
+	}
+	cp := make([]byte, len(b))
+	n = copy(cp, b)
+	r.ss = append(r.ss, string(cp))
 	return
 }
 
